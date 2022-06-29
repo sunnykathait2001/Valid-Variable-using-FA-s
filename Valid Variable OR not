@@ -1,0 +1,75 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<ctype.h>
+
+// state declaration
+struct state{
+    struct state *next;
+    struct state *dead_next;
+};
+
+// if the flow of the automaton ended up in the dead state
+void dead_state_error(){
+    printf("You Ended up in a dead state.\n");
+    printf("This Variable cannot be used\n");
+}
+
+// to Take the Variable from the user
+void EnterVariable(char *str){
+    printf("Enter the Variable : ");
+    scanf("%s",str);
+}
+
+// Main Function , which check the variable 
+void runProcess(char *var , struct state *intial , struct state *final , struct state *current){
+    int i = 0;
+    int flag = 0;
+    while(var[i] != '\0'){
+        if(isdigit(var[i]) && current == intial){
+            current = intial->dead_next;
+            dead_state_error();
+            flag = 1;
+        }else if(isalpha(var[i]) && current == intial){
+             current = intial->next;
+        }else if(current == final){
+            current = final->next;
+        }else{
+            current = intial->next;
+        }
+        i++;
+        if(flag == 1){
+            return;
+        }
+    }
+
+    if(current == final){
+        printf("Variable is OK.");
+    };
+    
+}
+
+// Driver Program
+int main(){
+
+    struct state *i = (struct state *)malloc(sizeof(struct state));
+
+    struct state *q1_intial = (struct state *)malloc(sizeof(struct state));
+    struct state *q2_final = (struct state *)malloc(sizeof(struct state));
+    struct state *dead_state = (struct state *)malloc(sizeof(struct state));
+
+    struct state *current_state = (struct state *)malloc(sizeof(struct state));
+    
+    q1_intial->next = q2_final;
+    q1_intial->dead_next = dead_state;
+
+    q2_final->next = q2_final;
+    q2_final->dead_next = NULL;
+
+    i = q1_intial;
+
+    char str[10];
+
+    EnterVariable(str);
+    runProcess(str,q1_intial,q2_final,i);
+    return 0;
+}
